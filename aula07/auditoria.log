@@ -1,0 +1,67 @@
+===============================================
+ EXECUÇÃO DE AUDITORIA DE SISTEMA - BINÁRIO TECH
+ Data: Sat Aug 15 03:35:54 PM UTC 2026
+===============================================
+
+[1] Consultando Telemetria Scania...
+{
+  "montadora": "Scania",
+  "dados": [
+    {
+      "id": 1,
+      "modelo": "R450",
+      "vin": "9BS123456789",
+      "temperatura_motor": 88,
+      "status": "OK"
+    },
+    {
+      "id": 2,
+      "modelo": "S500",
+      "vin": "9BS987654321",
+      "temperatura_motor": 102,
+      "status": "ALERTA_AQUECIMENTO"
+    },
+    {
+      "id": 3,
+      "modelo": "R540",
+      "vin": "9BS555444333",
+      "temperatura_motor": 99,
+      "status": "ALERTA_AQUECIMENTO"
+    },
+    {
+      "id": 4,
+      "modelo": "R450",
+      "vin": "INVALIDO123",
+      "temperatura_motor": 88,
+      "status": "OK"
+    }
+  ]
+}
+
+[2] Consultando Telemetria Mercedes-Benz...
+{
+  "erro": "Módulo ou Rota de Telemetria não encontrada."
+}
+
+[3] Testando Registro Scania com VIN Válido...
+{
+  "id": 5,
+  "modelo": "R540",
+  "vin": "9BS555444333",
+  "temperatura_motor": 90,
+  "status": "OK"
+}
+
+[4] Testando Registro Scania com VIN Inválido (Middleware)...
+{
+  "id": 6,
+  "modelo": "R540",
+  "vin": "12345",
+  "temperatura_motor": 90,
+  "status": "OK"
+}
+
+[5] Testando Rota Inexistente (404)...
+{
+  "erro": "Módulo ou Rota de Telemetria não encontrada."
+}

@@ -1,0 +1,18 @@
+=== INICIANDO BATERIA DE TESTES CRUD ===
+Data/Hora: Thu Aug  6 09:27:46 PM UTC 2026
+----------------------------------------
+
+[1/4] Cadastrando primeiro veículo (Volvo)...
+{"id":3,"placa":"KLL-9090","montadora":"Volvo","modelo":"FH 540","status":"DISPONIVEL"}
+
+[2/4] Cadastrando segundo veículo (DAF)...
+{"id":4,"placa":"DAF-2024","montadora":"DAF","modelo":"XF 530","status":"DISPONIVEL"}
+
+[3/4] Atualizando status do veículo ID 3...
+{"mensagem":"status atualizados com sucesso!","veiculo":{"id":3,"placa":"KLL-9090","montadora":"Volvo","modelo":"FH 540","status":"EM_ROTA"}}
+
+[4/4] Deletando veículo ID 4...
+{"mensagem":"Veiculo ID $(id) removido com sucesso."}
+
+----------------------------------------
+=== BATERIA DE TESTES FINALIZADA ===

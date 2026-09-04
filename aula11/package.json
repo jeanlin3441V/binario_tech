@@ -1,0 +1,23 @@
+{
+	"name": "aula11",
+	"version": "1.0.0",
+	"description": "Introdução ao MongoDB e Mongoose ODM - Binário Tech",
+	"main": "server.js",
+	"scripts": {
+		"start": "node server.js"
+	},
+	"depedencies": {
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.5",
+		"express": "^4.19.2",
+		"mongoose": "^8.3.1"
+	},
+	"dependencies": {
+		"cors": "^2.8.6",
+		"dotenv": "^17.4.2",
+		"express": "^5.2.1",
+		"mongoose": "^9.9.4",
+		"mysql2": "^3.24.2",
+		"pg": "^8.23.0"
+	}
+}
