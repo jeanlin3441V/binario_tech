@@ -1,0 +1,20 @@
+{
+  "name": "binario_tech",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeanlin3441V/binario_tech.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jeanlin3441V/binario_tech/issues"
+  },
+  "homepage": "https://github.com/jeanlin3441V/binario_tech#readme"
+}
