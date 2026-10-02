@@ -1,10 +1,10 @@
-=== AUDITORIA DE SEGURANÇA - Fri Aug  7 11:39:24 PM UTC 2026 ===
+=== AUDITORIA DE SEGURANÇA - Fri Oct  2 07:09:12 PM UTC 2026 ===
 
 [Tentativa Inválida 1]
-[{"id":1,"nome":"Carlos Silva","cnh":"12345678900","categoria":"E","ativo":true},{"id":2,"nome":"Ana Pereira","cnh":"98765432100","categoria":"D","ativo":true}]
+{"erro":"Acesso nao autorizado. Header 'X-API-KEY' invalido ou ausente."}
 [Tentativa Inválida 2]
-[{"id":1,"nome":"Carlos Silva","cnh":"12345678900","categoria":"E","ativo":true},{"id":2,"nome":"Ana Pereira","cnh":"98765432100","categoria":"D","ativo":true}]
+{"erro":"Acesso nao autorizado. Header 'X-API-KEY' invalido ou ausente."}
 [Tentativa Inválida 3]
-[{"id":1,"nome":"Carlos Silva","cnh":"12345678900","categoria":"E","ativo":true},{"id":2,"nome":"Ana Pereira","cnh":"98765432100","categoria":"D","ativo":true}]
+{"erro":"Acesso nao autorizado. Header 'X-API-KEY' invalido ou ausente."}
 [Tentativa Válida]
-[{"id":1,"nome":"Carlos Silva","cnh":"12345678900","categoria":"E","ativo":true},{"id":2,"nome":"Ana Pereira","cnh":"98765432100","categoria":"D","ativo":true}]
+{"erro":"Acesso nao autorizado. Header 'X-API-KEY' invalido ou ausente."}
