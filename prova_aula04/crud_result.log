@@ -1,0 +1,42 @@
+=========================================
+  TESTE CRUD - BINARIO TECH
+  Data/Hora: qui 15 out 2026 13:13:39 -03
+=========================================
+
+[1] Cadastrando primeiro veiculo...
+{
+  "id": 3,
+  "placa": "AAA-1111",
+  "montadora": "Scania",
+  "modelo": "R450",
+  "status": "DISPONIVEL"
+}
+
+[2] Cadastrando segundo veiculo...
+{
+  "id": 4,
+  "placa": "BBB-2222",
+  "montadora": "Volvo",
+  "modelo": "FH 540",
+  "status": "DISPONIVEL"
+}
+
+[3] Atualizando status do veiculo ID 3...
+{
+  "mensagem": "Status atualizado com sucesso!",
+  "veiculo": {
+    "id": 3,
+    "placa": "AAA-1111",
+    "montadora": "Scania",
+    "modelo": "R450",
+    "status": "EM_ROTA"
+  }
+}
+
+[4] Removendo veiculo ID 4...
+{
+  "mensagem": "Veiculo ID 4 removido com sucesso."
+}
+
+-----------------------------------------
+Teste CRUD finalizado!
