@@ -716,3 +716,501 @@ O arquivo `crud_result.log` terá as respostas das operações de cadastro, atua
 - `400 Bad Request` — Dados obrigatórios não informados.
 - `404 Not Found` — Veículo não encontrado.
 
+# Aula 05 — PBE1 | Binário Tech
+
+**Conteúdo:** Middlewares, rotas, autenticação por API Key, CORS e tratamento de erros.
+
+## 1. Criar o projeto
+
+```bash
+cd ~/binario_tech
+mkdir -p aula05/routes aula05/middlewares
+cd aula05
+npm init -y
+npm install express cors
+```
+
+## 2. Estrutura de pastas
+
+```text
+aula05/
+├── app.js
+├── package.json
+├── routes/
+│   ├── motoristas.js
+│   └── manutencoes.js
+└── middlewares/
+    ├── logger.js
+    ├── auth.js
+    └── validaCnh.js
+```
+
+Criar os arquivos:
+
+```bash
+touch app.js routes/motoristas.js routes/manutencoes.js
+touch middlewares/logger.js middlewares/auth.js middlewares/validaCnh.js
+touch teste_seguranca.sh
+```
+
+## 3. Logger — `middlewares/logger.js`
+
+```javascript
+function loggerMiddleware(req, res, next) {
+    const inicio = Date.now();
+    const timestamp = new Date().toISOString();
+
+    res.on('finish', () => {
+        const duracao = Date.now() - inicio;
+        console.log(
+            `[LOG ${timestamp}] ${req.method} ${req.originalUrl} - Status: ${res.statusCode} (${duracao}ms)`
+        );
+    });
+
+    next();
+}
+
+module.exports = loggerMiddleware;
+```
+
+## 4. Autenticação — `middlewares/auth.js`
+
+```javascript
+function authMiddleware(req, res, next) {
+    const apiKey = req.headers['x-api-key'];
+    const CHAVE_VALIDA = "binario-tech-secret-2026";
+
+    if (!apiKey || apiKey !== CHAVE_VALIDA) {
+        return res.status(401).json({
+            erro: "Acesso nao autorizado. Header 'X-API-KEY' invalido ou ausente."
+        });
+    }
+
+    next();
+}
+
+module.exports = authMiddleware;
+```
+
+## 5. Validação da CNH — `middlewares/validaCnh.js`
+
+```javascript
+function validaCnh(req, res, next) {
+    const { cnh } = req.body;
+
+    if (typeof cnh !== 'string' || !/^\d{11}$/.test(cnh)) {
+        return res.status(400).json({
+            erro: "A CNH deve conter exatamente 11 digitos numericos."
+        });
+    }
+
+    next();
+}
+
+module.exports = validaCnh;
+```
+
+## 6. Rotas de motoristas — `routes/motoristas.js`
+
+```javascript
+const express = require('express');
+const validaCnh = require('../middlewares/validaCnh');
+const router = express.Router();
+
+let motoristas = [
+    { id: 1, nome: "Carlos Silva", cnh: "12345678900", categoria: "E", ativo: true },
+    { id: 2, nome: "Ana Pereira", cnh: "98765432100", categoria: "D", ativo: true }
+];
+
+router.get('/', (req, res) => {
+    res.status(200).json(motoristas);
+});
+
+router.post('/', validaCnh, (req, res) => {
+    const { nome, cnh, categoria } = req.body;
+
+    if (!nome || !cnh || !categoria) {
+        return res.status(400).json({
+            erro: "Campos 'nome', 'cnh' e 'categoria' sao obrigatorios."
+        });
+    }
+
+    const novoMotorista = {
+        id: motoristas.length + 1,
+        nome,
+        cnh,
+        categoria,
+        ativo: true
+    };
+
+    motoristas.push(novoMotorista);
+    res.status(201).json(novoMotorista);
+});
+
+module.exports = router;
+```
+
+## 7. Rotas de manutenções — `routes/manutencoes.js`
+
+```javascript
+const express = require('express');
+const router = express.Router();
+
+let manutencoes = [
+    {
+        id: 1,
+        caminhao: "Caminhao 01",
+        descricao: "Troca de oleo e filtros",
+        valor: 850,
+        status: "ORCAMENTO"
+    },
+    {
+        id: 2,
+        caminhao: "Caminhao 02",
+        descricao: "Manutencao dos freios",
+        valor: 1200,
+        status: "ORCAMENTO"
+    }
+];
+
+router.get('/', (req, res) => {
+    res.status(200).json(manutencoes);
+});
+
+router.post('/', (req, res) => {
+    const { caminhao, descricao, valor } = req.body;
+
+    if (!caminhao || !descricao || valor === undefined ||
+        valor === null || valor === '') {
+        return res.status(400).json({
+            erro: "Campos 'caminhao', 'descricao' e 'valor' sao obrigatorios."
+        });
+    }
+
+    const novaManutencao = {
+        id: manutencoes.length + 1,
+        caminhao,
+        descricao,
+        valor,
+        status: "ORCAMENTO"
+    };
+
+    manutencoes.push(novaManutencao);
+    res.status(201).json(novaManutencao);
+});
+
+module.exports = router;
+```
+
+## 8. Servidor principal — `app.js`
+
+```javascript
+const express = require('express');
+const cors = require('cors');
+const loggerMiddleware = require('./middlewares/logger');
+const authMiddleware = require('./middlewares/auth');
+const motoristasRouter = require('./routes/motoristas');
+const manutencoesRouter = require('./routes/manutencoes');
+
+const app = express();
+const PORT = 3016;
+
+app.use(cors());
+app.use(express.json());
+app.use(loggerMiddleware);
+
+app.get('/api/v1/health', (req, res) => {
+    res.status(200).json({
+        status: "ONLINE",
+        aplicacao: "Binario Tech API v2"
+    });
+});
+
+app.use('/api/v1/motoristas', authMiddleware, motoristasRouter);
+app.use('/api/v1/manutencoes', authMiddleware, manutencoesRouter);
+
+app.use((req, res) => {
+    res.status(404).json({
+        erro: "Endpoint nao encontrado no servidor Binario Tech."
+    });
+});
+
+app.listen(PORT, () => {
+    console.log(`[Binario Tech] Servidor de Middlewares ativo na porta ${PORT}`);
+});
+```
+
+## 9. Executar e testar a API
+
+Iniciar:
+
+```bash
+node app.js
+```
+
+### Health Check — Exercício 01
+
+```bash
+curl -i http://localhost:3016/api/v1/health
+```
+
+Esperado: `200 OK`. Confira também o log no terminal do servidor.
+
+### Listar motoristas
+
+```bash
+curl -i -H "X-API-KEY: binario-tech-secret-2026" http://localhost:3016/api/v1/motoristas
+```
+
+### Cadastrar motorista
+
+```bash
+curl -i -X POST http://localhost:3016/api/v1/motoristas \
+-H "X-API-KEY: binario-tech-secret-2026" \
+-H "Content-Type: application/json" \
+-d '{"nome":"Roberto Souza","cnh":"55544433322","categoria":"E"}'
+```
+
+Esperado: `201 Created`.
+
+### Testar autenticação — Exercício 03
+
+Sem chave:
+
+```bash
+curl -i http://localhost:3016/api/v1/manutencoes
+```
+
+Esperado: `401 Unauthorized`.
+
+Com chave:
+
+```bash
+curl -i -H "X-API-KEY: binario-tech-secret-2026" http://localhost:3016/api/v1/manutencoes
+```
+
+Esperado: `200 OK`.
+
+### Listar manutenções — Exercício 02
+
+```bash
+curl -i -H "X-API-KEY: binario-tech-secret-2026" http://localhost:3016/api/v1/manutencoes
+```
+
+### Cadastrar manutenção
+
+```bash
+curl -i -X POST http://localhost:3016/api/v1/manutencoes \
+-H "X-API-KEY: binario-tech-secret-2026" \
+-H "Content-Type: application/json" \
+-d '{"caminhao":"Caminhao 03","descricao":"Revisao do motor","valor":1500}'
+```
+
+Esperado: `201 Created`.
+
+## 10. Exercício 04 — Criar validação da CNH
+
+O código está no arquivo `middlewares/validaCnh.js`, na seção 5.
+
+A expressão `/^\d{11}$/` exige exatamente 11 dígitos numéricos.
+
+## 11. Exercício 05 — Testar CNH inválida
+
+```bash
+curl -i -X POST http://localhost:3016/api/v1/motoristas \
+-H "X-API-KEY: binario-tech-secret-2026" \
+-H "Content-Type: application/json" \
+-d '{"nome":"Roberto Souza","cnh":"123","categoria":"E"}'
+```
+
+Esperado: `400 Bad Request`.
+
+A rota POST precisa conter:
+
+```javascript
+router.post('/', validaCnh, (req, res) => {
+```
+
+## 12. Exercício 06 — Testar erro 404
+
+```bash
+curl -i http://localhost:3016/api/v1/clientes
+```
+
+Esperado: `404 Not Found`.
+
+O middleware de 404 deve ficar depois de todas as rotas no `app.js`.
+
+## 13. Exercício 07 — Script de segurança
+
+Criar o arquivo:
+
+```bash
+nano teste_seguranca.sh
+```
+
+Código:
+
+```bash
+#!/bin/bash
+
+URL="http://localhost:3016/api/v1/motoristas"
+ARQUIVO="audit_seguranca.log"
+
+echo "Inicio dos testes: $(date)" > "$ARQUIVO"
+
+for i in 1 2 3
+do
+    echo "Tentativa $i sem API Key" >> "$ARQUIVO"
+    curl -s -o /dev/null -w "HTTP %{http_code}\n" \
+    "$URL" >> "$ARQUIVO"
+done
+
+echo "Tentativa com API Key valida" >> "$ARQUIVO"
+
+curl -s -o /dev/null -w "HTTP %{http_code}\n" \
+-H "X-API-KEY: binario-tech-secret-2026" \
+"$URL" >> "$ARQUIVO"
+
+cat "$ARQUIVO"
+```
+
+Executar:
+
+```bash
+chmod +x teste_seguranca.sh
+./teste_seguranca.sh
+cat audit_seguranca.log
+```
+
+Esperado: três respostas `401` e uma resposta `200`.
+
+## 14. Exercício 08 — Encerrar o servidor
+
+Encontrar o processo:
+
+```bash
+ps aux | grep node
+```
+
+Encerrar pelo PID correto:
+
+```bash
+kill PID
+```
+
+Se necessário:
+
+```bash
+kill -9 PID
+```
+
+Substitua `PID` pelo número real do processo.
+
+## 15. Comandos úteis
+
+```bash
+ls -R
+```
+
+Editar arquivos:
+
+```bash
+nano app.js
+nano routes/motoristas.js
+nano routes/manutencoes.js
+nano middlewares/logger.js
+nano middlewares/auth.js
+nano middlewares/validaCnh.js
+nano teste_seguranca.sh
+```
+
+Se o `jq` estiver instalado:
+
+```bash
+curl -s http://localhost:3016/api/v1/health | jq .
+```
+
+## 16. Códigos HTTP
+
+| Código | Significado |
+|---|---|
+| `200` | Consulta realizada com sucesso |
+| `201` | Cadastro realizado |
+| `400` | Dados inválidos ou ausentes |
+| `401` | API Key inválida ou ausente |
+| `404` | Rota não encontrada |
+| `500` | Erro interno do servidor |
+
+## 17. Modelos para adaptar
+
+### GET
+
+```javascript
+router.get('/', (req, res) => {
+    res.status(200).json(dados);
+});
+```
+
+### POST
+
+```javascript
+router.post('/', (req, res) => {
+    const { campo1, campo2 } = req.body;
+
+    if (!campo1 || !campo2) {
+        return res.status(400).json({
+            erro: "Campos obrigatorios."
+        });
+    }
+
+    const novo = {
+        id: dados.length + 1,
+        campo1,
+        campo2
+    };
+
+    dados.push(novo);
+    res.status(201).json(novo);
+});
+```
+
+### Criar roteador
+
+```javascript
+const express = require('express');
+const router = express.Router();
+
+// Rotas aqui
+
+module.exports = router;
+```
+
+### Registrar rota protegida no `app.js`
+
+```javascript
+const exemploRouter = require('./routes/exemplo');
+
+app.use('/api/v1/exemplo', authMiddleware, exemploRouter);
+```
+
+## 18. Resumo
+
+- `req`: requisição.
+- `res`: resposta.
+- `next()`: passa o controle ao próximo middleware.
+- `express.Router()`: organiza as rotas.
+- `express.json()`: interpreta JSON.
+- `cors()`: configura acesso entre origens.
+- `req.body`: dados enviados pelo cliente.
+- `req.headers['x-api-key']`: lê a API Key.
+- `router.get('/')`: consulta dados.
+- `router.post('/')`: cadastra dados.
+- `module.exports`: exporta o módulo.
+- `require()`: importa o módulo.
+- Middleware de 404: fica no final do `app.js`.
+- Porta da aplicação: `3016`.
+
+**Observação:** o código implementa o tratamento de `404`, mas não possui um middleware global específico para erros internos `500`. Os dados ficam em memória e são perdidos quando o servidor reinicia.
+
+
